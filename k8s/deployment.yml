@@ -1,0 +1,20 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: authentication-app
+  labels:
+    app: authentication
+spec:
+  containers:
+    - name: auth-service
+      image: 'auth:latest'
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: authentication-service
+spec:
+  selector:
+    app: authentication
+  ports:
+    - port: 8000

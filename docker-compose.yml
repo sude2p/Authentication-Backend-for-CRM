@@ -1,0 +1,73 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app  # Mount the root directory
+    ports:
+      - "8002:8000"
+    environment:
+      - DB_USER = ${DB_USER}
+      - DB_PASSWORD = ${DB_PASSWORD}
+      - DB_HOST = ${DB_HOST}
+      - DB_NAME = ${DB_NAME}
+      - IS_GITHUB = ${IS_GITHUB}
+      - SECRET_KEY = ${SECRET_KEY}
+      - EMAIL_BACKEND = ${EMAIL_BACKEND}
+      - EMAIL_HOST =' ${EMAIL_HOST}
+      - EMAIL_PORT = ${EMAIL_PORT}
+      - EMAIL_HOST_USER = ${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD = ${EMAIL_HOST_PASSWORD}
+      - EMAIL_USE_TLS = ${EMAIL_USE_TLS}
+      - FRONEND_URL = ${FRONEND_URL}
+      - CLOUDAMPURL = ${CLOUDAMPURL}
+    networks:
+      - crm-network
+    depends_on:
+      - auth-db 
+
+  auth-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: ["python", "manage.py", "start_listner"]
+    environment:
+      - DB_USER = ${DB_USER}
+      - DB_PASSWORD = ${DB_PASSWORD}
+      - DB_HOST = ${DB_HOST}
+      - DB_NAME = ${DB_NAME}
+      - IS_GITHUB = ${IS_GITHUB}
+      - SECRET_KEY = ${SECRET_KEY}
+      - EMAIL_BACKEND = ${EMAIL_BACKEND}
+      - EMAIL_HOST =' ${EMAIL_HOST}
+      - EMAIL_PORT = ${EMAIL_PORT}
+      - EMAIL_HOST_USER = ${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD = ${EMAIL_HOST_PASSWORD}
+      - EMAIL_USE_TLS = ${EMAIL_USE_TLS}
+      - FRONEND_URL = ${FRONEND_URL}
+      - CLOUDAMPURL = ${CLOUDAMPURL}
+    depends_on:
+      - auth-db
+    networks:
+      - crm-network
+
+  auth-db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - crm-network
+
+volumes:
+  postgres_data:
+
+networks:
+  crm-network:
+    external: true
